@@ -17,6 +17,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedInputStream;
@@ -36,8 +37,18 @@ public class LoginActivity extends ActionBarActivity {
         EditText passwordEditText = (EditText) findViewById(R.id.editText_password);
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-        boolean loginSuccess = true;
-        //TODO:If API Call returns true, execute this method
+        boolean loginSuccess = false;
+
+        HttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost(url);
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        pairs.add(new BasicNameValuePair("email", email));
+        pairs.add(new BasicNameValuePair("password", password));
+        post.setEntity(new UrlEncodedFormEntity(pairs));
+        HttpResponse response = client.execute(post);
+
+        //TODO: IF THE RESPONSE IS A SUCCESSFUL LOGIN, CHANGE LOGINSUCCESS TO TRUE
+        //TODO: HOW DO I FIX THE UNHANDLED EXCEPTIONS IN THE TWO LINES ABOVE
         if (loginSuccess) {
             Intent i = new Intent(getApplicationContext(), LandingActivity.class);
             startActivity(i);

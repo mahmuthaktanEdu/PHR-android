@@ -31,14 +31,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginActivity extends ActionBarActivity {
-        private static final String url = "http://m-health.cse.nd.edu:8000/phrService-0.0.1-SNAPSHOT/login/login";
+    public final static String apiURL = "http://m-health.cse.nd.edu:8000/phrService-0.0.1-SNAPSHOT/login/login";
+    //private class to call the API
+    private class CallAPI extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String urlString = params[0];
+            String resultToDisplay = null;
+            verificationResult result = null;
+            InputStream in = null;
+            //HTTP Get
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                in = new BufferedInputStream(urlConnection.getInputStream());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+                return e.getMessage();
+            }
+            Log.i("LoginActivity","doInBackGround - response to API call is " + in);
+            return resultToDisplay;
+        }
+        protected void onPostExecute(String result){
+
+        }
+    } //END CALL API
+    private class verificationResult {
+        public String verificationStatus;
+        public String verificationResult;
+    }
     public void verifyLogin(View view) {
 
         EditText emailEditText = (EditText) findViewById(R.id.editText_email_address);
         EditText passwordEditText = (EditText) findViewById(R.id.editText_password);
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-        boolean loginSuccess = false;
+
+        if (email != null && password != null){
+            String urlString = apiURL + "<user><email>" + email + "</email><password>" + password + "</password></user>";
+            new CallAPI().execute(urlString);
+        }
+        /*boolean loginSuccess = false;
         //email and password hold the editText values, set loginSuccess to false
         HttpClient client = new DefaultHttpClient();
         HttpPut put = new HttpPut(url);
@@ -68,28 +102,13 @@ public class LoginActivity extends ActionBarActivity {
         else {
             //display some textview below editTexts for failed login
         }
+        */
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        /*HttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost(url);
-        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        post.setEntity(new UrlEncodedFormEntity(pairs));
-        try {
-            HttpResponse response = client.execute(post);
-        }
-        catch (UnsupportedEncodingException) {
-
-        }
-        catch (ClientProtocolException) {
-
-        }
-        catch (IOException) {
-
-        }*/
     }
 
 

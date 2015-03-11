@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,17 +39,28 @@ public class LoginActivity extends ActionBarActivity {
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         boolean loginSuccess = false;
-
+        //email and password hold the editText values, set loginSuccess to false
         HttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost(url);
+        HttpPut put = new HttpPut(url);
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         pairs.add(new BasicNameValuePair("email", email));
         pairs.add(new BasicNameValuePair("password", password));
-        post.setEntity(new UrlEncodedFormEntity(pairs));
-        HttpResponse response = client.execute(post);
-
+        //put request with email and password
+        HttpResponse response = null;
+        //initial response is null
+        //try executing the put request and get a response, catch some exceptions
+        try {
+            put.setEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
+            response = client.execute(put);
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //logging the response just to see what I get
+        Log.i("LoginActivity", "LoginActivity.verifyLogin() - response is " + response);
         //TODO: IF THE RESPONSE IS A SUCCESSFUL LOGIN, CHANGE LOGINSUCCESS TO TRUE
-        //TODO: HOW DO I FIX THE UNHANDLED EXCEPTIONS IN THE TWO LINES ABOVE
+
         if (loginSuccess) {
             Intent i = new Intent(getApplicationContext(), LandingActivity.class);
             startActivity(i);

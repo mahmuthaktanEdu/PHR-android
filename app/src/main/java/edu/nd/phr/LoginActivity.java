@@ -15,6 +15,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -22,6 +23,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -36,21 +38,51 @@ public class LoginActivity extends ActionBarActivity {
     private class CallAPI extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
-            String urlString = params[0];
+
+            String urlString = apiURL;
+            String body = params[0];
+            byte[] bytebody = body.getBytes();
             String resultToDisplay = null;
             verificationResult result = null;
             InputStream in = null;
-            //HTTP Get
+
+            //HTTP Put
+            Log.i("LoginActivity","doInBackground - params[0] is " + params[0]);
             try {
                 URL url = new URL(urlString);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestProperty("Content-Type", "application/xml");
                 in = new BufferedInputStream(urlConnection.getInputStream());
+                try {
+                    DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
+                    wr.write(bytebody);
+                }
+                catch (Exception e) {
+                        e.printStackTrace();
+                        return e.getMessage();
+                }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
                 return e.getMessage();
             }
-            Log.i("LoginActivity","doInBackGround - response to API call is " + in);
+
+
+            byte[] contents = new byte[1024];
+            int bytesRead;
+            String strFileContents = null;
+            try {
+                while ((bytesRead = in.read(contents)) != -1) {
+                    strFileContents = new String(contents, 0, bytesRead);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+
+            Log.i("LoginActivity","doInBackGround - response to API call is " + strFileContents);
             return resultToDisplay;
         }
         protected void onPostExecute(String result){
@@ -69,28 +101,10 @@ public class LoginActivity extends ActionBarActivity {
         String password = passwordEditText.getText().toString();
 
         if (email != null && password != null){
-            String urlString = apiURL + "<user><email>" + email + "</email><password>" + password + "</password></user>";
-            new CallAPI().execute(urlString);
+            String xmlbody = "<user><email>" + email + "</email><password>" + password + "</password></user>";
+            new CallAPI().execute(xmlbody);
         }
         /*boolean loginSuccess = false;
-        //email and password hold the editText values, set loginSuccess to false
-        HttpClient client = new DefaultHttpClient();
-        HttpPut put = new HttpPut(url);
-        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        pairs.add(new BasicNameValuePair("email", email));
-        pairs.add(new BasicNameValuePair("password", password));
-        //put request with email and password
-        HttpResponse response = null;
-        //initial response is null
-        //try executing the put request and get a response, catch some exceptions
-        try {
-            put.setEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
-            response = client.execute(put);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         //logging the response just to see what I get
         Log.i("LoginActivity", "LoginActivity.verifyLogin() - response is " + response);
         //TODO: IF THE RESPONSE IS A SUCCESSFUL LOGIN, CHANGE LOGINSUCCESS TO TRUE

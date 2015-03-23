@@ -34,7 +34,7 @@ import java.util.List;
 
 public class LoginActivity extends ActionBarActivity {
     public final static String apiURL = "http://m-health.cse.nd.edu:8000/phrService-0.0.1-SNAPSHOT/login/login";
-    //private class to call the API
+    //private subclass to call the API
     private class CallAPI extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -44,7 +44,7 @@ public class LoginActivity extends ActionBarActivity {
             byte[] bytebody = body.getBytes();
             String resultToDisplay = null;
             verificationResult result = null;
-            InputStream in = null;
+            InputStream in;
 
             //HTTP Put
             Log.i("LoginActivity","doInBackground - params[0] is " + params[0]);
@@ -53,10 +53,11 @@ public class LoginActivity extends ActionBarActivity {
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("PUT");
                 urlConnection.setRequestProperty("Content-Type", "application/xml");
-                in = new BufferedInputStream(urlConnection.getInputStream());
+                //in = new BufferedInputStream(urlConnection.getInputStream());
                 try {
                     DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
                     wr.write(bytebody);
+                    in = new BufferedInputStream(urlConnection.getInputStream());
                 }
                 catch (Exception e) {
                         e.printStackTrace();
@@ -83,7 +84,10 @@ public class LoginActivity extends ActionBarActivity {
             }
 
             Log.i("LoginActivity","doInBackGround - response to API call is " + strFileContents);
-            return resultToDisplay;
+            if (strFileContents.equals("TRUE") || strFileContents.equals("FALSE"))
+                return strFileContents;
+            else
+                return resultToDisplay;
         }
         protected void onPostExecute(String result){
 

@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.os.*;
+import android.widget.TextView;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -82,19 +84,28 @@ public class LoginActivity extends ActionBarActivity {
                 e.printStackTrace();
                 return e.getMessage();
             }
-
             Log.i("LoginActivity","doInBackGround - response to API call is " + strFileContents);
-            if (strFileContents.equals("TRUE") || strFileContents.equals("FALSE"))
-                return strFileContents;
-            else
-                return resultToDisplay;
+            return strFileContents;
         }
         protected void onPostExecute(String result){
-
+            if (result.equals("TRUE")){
+                //start new activity
+                Intent i = new Intent(getApplicationContext(), LandingActivity.class);
+                startActivity(i);
+            }
+            else if(result.equals("FALSE")){
+                //TODO: display a login error message
+                String message = "Invalid Login. Try again.";
+                Log.i("LoginActivity", "onPostExecute - error to display " + message);
+            }
+            else {
+                //TODO: display an error message
+                String error = "Error connecting to server. Try again later.";
+                Log.i("LoginActivity", "onPostExecute - error to display " + error);
+            }
         }
     } //END CALL API
-    private class verificationResult {
-        public String verificationStatus;
+    public class verificationResult {
         public String verificationResult;
     }
     public void verifyLogin(View view) {
@@ -103,32 +114,17 @@ public class LoginActivity extends ActionBarActivity {
         EditText passwordEditText = (EditText) findViewById(R.id.editText_password);
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
-
         if (email != null && password != null){
             String xmlbody = "<user><email>" + email + "</email><password>" + password + "</password></user>";
             new CallAPI().execute(xmlbody);
         }
-        /*boolean loginSuccess = false;
-        //logging the response just to see what I get
-        Log.i("LoginActivity", "LoginActivity.verifyLogin() - response is " + response);
-        //TODO: IF THE RESPONSE IS A SUCCESSFUL LOGIN, CHANGE LOGINSUCCESS TO TRUE
-
-        if (loginSuccess) {
-            Intent i = new Intent(getApplicationContext(), LandingActivity.class);
-            startActivity(i);
-        }
-        else {
-            //display some textview below editTexts for failed login
-        }
-        */
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

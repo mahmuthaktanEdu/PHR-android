@@ -19,8 +19,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LandingActivity"
-            android:label="@string/title_activity_landing" >
+            android:name=".HealthOptionsActivity"
+            android:label="@string/title_activity_health_options" >
+        </activity>
+        <activity
+            android:name=".CholestoralActivity"
+            android:label="@string/title_activity_cholestoral" >
+        </activity>
+        <activity
+            android:name=".AccountActivity"
+            android:label="@string/title_activity_account" >
+        </activity>
+        <activity
+            android:name=".SignupActivity"
+            android:label="@string/title_activity_signup" >
         </activity>
     </application>
 

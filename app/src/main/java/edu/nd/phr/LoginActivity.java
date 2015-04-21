@@ -1,5 +1,6 @@
 package edu.nd.phr;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -90,16 +91,28 @@ public class LoginActivity extends ActionBarActivity {
         protected void onPostExecute(String result){
             if (result.equals("TRUE")){
                 //start new activity
-                Intent i = new Intent(getApplicationContext(), LandingActivity.class);
+                Intent i = new Intent(getApplicationContext(), HealthOptionsActivity.class);
                 startActivity(i);
             }
             else if(result.equals("FALSE")){
                 //TODO: display a login error message
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(LoginActivity.this);
+                loginAlert.setMessage("Invalid login credentials.");
+                loginAlert.setTitle("Login Error");
+                loginAlert.setPositiveButton("OK",null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
                 String message = "Invalid Login. Try again.";
                 Log.i("LoginActivity", "onPostExecute - error to display " + message);
             }
             else {
                 //TODO: display an error message
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(LoginActivity.this);
+                loginAlert.setMessage("Error connecting to server.");
+                loginAlert.setTitle("Server Error");
+                loginAlert.setPositiveButton("OK",null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
                 String error = "Error connecting to server. Try again later.";
                 Log.i("LoginActivity", "onPostExecute - error to display " + error);
             }
@@ -109,7 +122,6 @@ public class LoginActivity extends ActionBarActivity {
         public String verificationResult;
     }
     public void verifyLogin(View view) {
-
         EditText emailEditText = (EditText) findViewById(R.id.editText_email_address);
         EditText passwordEditText = (EditText) findViewById(R.id.editText_password);
         String email = emailEditText.getText().toString();
@@ -118,6 +130,10 @@ public class LoginActivity extends ActionBarActivity {
             String xmlbody = "<user><email>" + email + "</email><password>" + password + "</password></user>";
             new CallAPI().execute(xmlbody);
         }
+    }
+    public void toSignup(View view) {
+        Intent i = new Intent(getApplicationContext(),SignupActivity.class);
+        startActivity(i);
     }
 
     @Override

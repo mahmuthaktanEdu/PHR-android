@@ -3,10 +3,18 @@ package edu.nd.phr;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 public class SignupActivity extends ActionBarActivity {
@@ -15,8 +23,48 @@ public class SignupActivity extends ActionBarActivity {
     //subclass to verify and send signup information in background
     private class SignupAPICall extends AsyncTask<String, String, String> {
         @Override
-        protected String doInBackground(String... params) {
-            return "Hello";
+        protected String doInBackground(String... params)
+        {
+            EditText emailEdit = (EditText)findViewById(R.id.signup_email);
+            String email = emailEdit.getText().toString();
+            String body = "<email>"+email+"</email>";
+            byte[] bytebody = body.getBytes();
+            String URLcall = emailAvailabilityURL + email + "</email>";
+            InputStream in;
+            Log.i("SignupActivity", "The value of params[0] is:" + params[0]);
+            try {
+                URL url = new URL(URLcall);
+                HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Content-Type","application/json");
+                try {
+                    DataOutputStream wr =  new DataOutputStream(urlConnection.getOutputStream());
+                    wr.write(bytebody);
+                    in = new BufferedInputStream(urlConnection.getInputStream());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return e.getMessage();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+            byte[] contents = new byte[1024];
+            int bytesRead;
+            String strFileContents = null;
+            try {
+                while ((bytesRead = in.read(contents)) != -1) {
+                    strFileContents = new String(contents, 0, bytesRead);
+                }
+            }
+            catch (Exception e) {
+                 e.printStackTrace();
+                 return e.getMessage();
+            }
+            Log.i("SignupActivity","response to API call is: "+strFileContents);
+            return strFileContents;
         }
     }
 

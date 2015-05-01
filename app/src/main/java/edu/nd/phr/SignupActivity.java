@@ -1,5 +1,6 @@
 package edu.nd.phr;
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 
 public class SignupActivity extends ActionBarActivity {
@@ -27,9 +29,7 @@ public class SignupActivity extends ActionBarActivity {
         {
             EditText emailEdit = (EditText)findViewById(R.id.signup_email);
             String email = emailEdit.getText().toString();
-            String body = "<email>"+email+"</email>";
-            byte[] bytebody = body.getBytes();
-            String URLcall = emailAvailabilityURL + email + "</email>";
+            String URLcall = signupURL + "/" + email;
             InputStream in;
             Log.i("SignupActivity", "The value of params[0] is:" + params[0]);
             try {
@@ -38,8 +38,6 @@ public class SignupActivity extends ActionBarActivity {
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("Content-Type","application/json");
                 try {
-                    DataOutputStream wr =  new DataOutputStream(urlConnection.getOutputStream());
-                    wr.write(bytebody);
                     in = new BufferedInputStream(urlConnection.getInputStream());
                 }
                 catch (Exception e) {
@@ -64,7 +62,73 @@ public class SignupActivity extends ActionBarActivity {
                  return e.getMessage();
             }
             Log.i("SignupActivity","response to API call is: "+strFileContents);
-            return strFileContents;
+            //strFileContents contains TRUE here if email is already taken
+
+            //TODO:REGISTER
+            String body = params[0];
+            byte[] bytebody = body.getBytes();
+            String regURL = signupURL;
+            InputStream input;
+            String S_strFileContents = null;
+            byte[] S_contents = new byte[1024];
+            int S_bytesRead;
+            if ("FALSE".equals(strFileContents)) {
+                    //TODO: call register method
+                    Log.i("SignupActivity", "Response for email validation is FALSE");
+                    try {
+                        URL url = new URL(regURL);
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod("PUT");
+                        urlConnection.setRequestProperty("Content-Type", "application/xml");
+                        try {
+                            DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
+                            wr.write(bytebody);
+                            input = new BufferedInputStream(urlConnection.getInputStream());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return e.getMessage();
+                        }
+                    } catch (Exception e) {
+                        e.getStackTrace();
+                        return e.getMessage();
+                    }
+                    try {
+                        while ((S_bytesRead = input.read(S_contents)) != -1) {
+                            S_strFileContents = new String(S_contents, 0, S_bytesRead);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return e.getMessage();
+                    }
+                return S_strFileContents;
+                }
+            else {
+                return strFileContents;
+            }
+}
+        protected void onPostExecute(String result){
+            String str = result.substring(0,4);
+            str = str.toLowerCase();
+            if (str.equals("error")){
+
+            }
+
+            if (result.equals("TRUE")){
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
+                loginAlert.setMessage("Email is already registered!");
+                loginAlert.setTitle("Registration Error");
+                loginAlert.setPositiveButton("OK", null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
+            }
+            else {
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
+                loginAlert.setMessage("Error! Please try again");
+                loginAlert.setTitle("Error");
+                loginAlert.setPositiveButton("OK", null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
+            }
         }
     }
 

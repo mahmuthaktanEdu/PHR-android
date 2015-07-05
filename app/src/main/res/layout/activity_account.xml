@@ -11,27 +11,29 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:hint="@string/first"
+        android:maxLength="15"
         android:singleLine="true"
-        android:id="@+id/editText_firstname"/>
+        android:id="@+id/editText_accfirstname"/>
     <EditText
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:hint="@string/last"
+        android:maxLength="15"
         android:singleLine="true"
-        android:id="@+id/editText_lastname"/>
+        android:id="@+id/editText_acclastname"/>
     <EditText
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:hint="@string/address"
         android:singleLine="true"
-        android:id="@+id/editText_address"/>
+        android:id="@+id/editText_accaddress"/>
     <EditText
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:hint="@string/phone"
         android:singleLine="true"
         android:inputType="phone"
-        android:id="@+id/editText_phone"/>
+        android:id="@+id/editText_accphone"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="150dp"
@@ -41,19 +43,19 @@
             android:layout_height="wrap_content"
             android:hint="@string/city"
             android:singleLine="true"
-            android:id="@+id/editText_city"/>
+            android:id="@+id/editText_acccity"/>
         <EditText
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:hint="@string/state"
             android:singleLine="true"
-            android:id="@+id/editText_state"/>
+            android:id="@+id/editText_accstate"/>
         <EditText
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:hint="@string/zip"
             android:singleLine="true"
-            android:id="@+id/editText_zip"/>
+            android:id="@+id/editText_acczip"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"

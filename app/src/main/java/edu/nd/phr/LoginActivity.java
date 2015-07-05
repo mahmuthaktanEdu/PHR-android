@@ -1,7 +1,9 @@
 package edu.nd.phr;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -37,26 +39,25 @@ import java.util.List;
 
 public class LoginActivity extends ActionBarActivity {
     public final static String apiURL = "http://m-health.cse.nd.edu:8000/phrService-0.0.1-SNAPSHOT/login/login";
+    public final static String MY_PREFERENCES = "myPrefs";
+    SharedPreferences sharedpreferences;
     //private subclass to call the API
     private class CallAPI extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
-
+            boolean serverDown = false; //for debugging purposes
+            if (serverDown) return "TRUE";
             String urlString = apiURL;
             String body = params[0];
             byte[] bytebody = body.getBytes();
-            String resultToDisplay = null;
-            verificationResult result = null;
             InputStream in;
 
-            //HTTP Put
-            Log.i("LoginActivity","doInBackground - params[0] is " + params[0]);
+            //HTTP PUT
             try {
                 URL url = new URL(urlString);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("PUT");
                 urlConnection.setRequestProperty("Content-Type", "application/xml");
-                //in = new BufferedInputStream(urlConnection.getInputStream());
                 try {
                     DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
                     wr.write(bytebody);
@@ -71,7 +72,6 @@ public class LoginActivity extends ActionBarActivity {
                 e.printStackTrace();
                 return e.getMessage();
             }
-
 
             byte[] contents = new byte[1024];
             int bytesRead;
@@ -90,12 +90,17 @@ public class LoginActivity extends ActionBarActivity {
         }
         protected void onPostExecute(String result){
             if (result.equals("TRUE")){
-                //start new activity
+                //on success TODO: begin storing data about user for quick displays
+                EditText emailEditText = (EditText) findViewById(R.id.editText_email_address);
+                String email = emailEditText.getText().toString();
+                sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString("email", email);
+                editor.commit();
                 Intent i = new Intent(getApplicationContext(), HealthOptionsActivity.class);
                 startActivity(i);
             }
             else if(result.equals("FALSE")){
-                //TODO: display a login error message
                 AlertDialog.Builder loginAlert = new AlertDialog.Builder(LoginActivity.this);
                 loginAlert.setMessage("Invalid login credentials.");
                 loginAlert.setTitle("Login Error");
@@ -106,7 +111,6 @@ public class LoginActivity extends ActionBarActivity {
                 Log.i("LoginActivity", "onPostExecute - error to display " + message);
             }
             else {
-                //TODO: display an error message
                 AlertDialog.Builder loginAlert = new AlertDialog.Builder(LoginActivity.this);
                 loginAlert.setMessage("Error connecting to server.");
                 loginAlert.setTitle("Server Error");
@@ -118,9 +122,7 @@ public class LoginActivity extends ActionBarActivity {
             }
         }
     } //END CALL API
-    public class verificationResult {
-        public String verificationResult;
-    }
+
     public void verifyLogin(View view) {
         EditText emailEditText = (EditText) findViewById(R.id.editText_email_address);
         EditText passwordEditText = (EditText) findViewById(R.id.editText_password);
@@ -132,14 +134,19 @@ public class LoginActivity extends ActionBarActivity {
         }
     }
     public void toSignup(View view) {
-        Intent i = new Intent(getApplicationContext(),SignupActivity.class);
-        startActivity(i);
+        Intent j = new Intent(getApplicationContext(), SignupActivity.class);
+        startActivity(j);
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        SharedPreferences sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        String email = sharedPreferences.getString("email", "");
+        if (email != null) {
+            EditText emailEdit = (EditText) findViewById(R.id.editText_email_address);
+            emailEdit.setText(email);
+        }
     }
 
     @Override

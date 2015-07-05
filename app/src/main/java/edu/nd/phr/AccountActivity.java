@@ -1,10 +1,14 @@
 package edu.nd.phr;
 
+import android.accounts.Account;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 
 public class AccountActivity extends ActionBarActivity {
@@ -13,6 +17,13 @@ public class AccountActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+        //Template to be used to fill in some information as page is loaded
+        /*
+        SharedPreferences sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        String email = sharedPreferences.getString("email", "");
+        EditText emailEdit = (EditText) findViewById(R.id.editText_accfirstname);
+        emailEdit.setText(email);
+        */
     }
 
 

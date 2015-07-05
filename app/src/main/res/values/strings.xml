@@ -9,11 +9,11 @@
     <string name="Register">New to ND PHR? Click here to register.</string>
     <string name="title_activity_landing">Notre Dame PHR</string>
     <!-- Landing Page Strings -->
-    <string name="account_mod">Account</string>
+    <string name="account_mod">Edit Account</string>
     <string name="health_views">Health Views</string>
     <string name="measurements">Measurements</string>
     <string name="history">History</string>
-    <string name="cholestoral">Cholestoral</string>
+    <string name="cholesterol">Cholesterol</string>
     <string name="blood_glucose">Blood Glucose</string>
     <string name="measures">Measurements</string>
     <string name="blood_pressure">Blood Pressure</string>

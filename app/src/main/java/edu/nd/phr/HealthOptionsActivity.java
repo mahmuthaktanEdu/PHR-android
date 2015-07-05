@@ -29,7 +29,7 @@ public class HealthOptionsActivity extends ActionBarActivity {
     }
     //@Override
     public void toCholestoral(View view) {
-    //TODO:if button is clicked, take to cholestoral page
+    //TODO:if button is clicked, take to cholesterol page
         Intent i = new Intent(getApplicationContext(),CholestoralActivity.class);
         startActivity(i);
     }

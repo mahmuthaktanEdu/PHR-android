@@ -1,6 +1,8 @@
 package edu.nd.phr;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -27,6 +29,13 @@ public class SignupActivity extends ActionBarActivity {
         @Override
         protected String doInBackground(String... params)
         {
+            EditText first = (EditText)findViewById(R.id.signup_firstname);
+            EditText last = (EditText)findViewById(R.id.signup_lastname);
+            String firstStr = first.getText().toString();
+            String lastStr = last.getText().toString();
+            if (firstStr.isEmpty() || lastStr.isEmpty()){
+                return "missing_fields";
+            }
             EditText emailEdit = (EditText)findViewById(R.id.signup_email);
             String email = emailEdit.getText().toString();
             String URLcall = signupURL + "/" + email;
@@ -42,12 +51,12 @@ public class SignupActivity extends ActionBarActivity {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    return e.getMessage();
+                    return "error";
                 }
             }
             catch (Exception e) {
                 e.printStackTrace();
-                return e.getMessage();
+                return "error";
             }
             byte[] contents = new byte[1024];
             int bytesRead;
@@ -59,11 +68,13 @@ public class SignupActivity extends ActionBarActivity {
             }
             catch (Exception e) {
                  e.printStackTrace();
-                 return e.getMessage();
+                 return "error";
             }
             Log.i("SignupActivity","response to API call is: "+strFileContents);
             //strFileContents contains TRUE here if email is already taken
-
+            if ("TRUE".equals(strFileContents)){
+                return "email_taken"; //returns "taken" if email is taken
+            }
             //TODO:REGISTER
             String body = params[0];
             byte[] bytebody = body.getBytes();
@@ -86,11 +97,11 @@ public class SignupActivity extends ActionBarActivity {
                             input = new BufferedInputStream(urlConnection.getInputStream());
                         } catch (Exception e) {
                             e.printStackTrace();
-                            return e.getMessage();
+                            return "error";
                         }
                     } catch (Exception e) {
                         e.getStackTrace();
-                        return e.getMessage();
+                        return "error";
                     }
                     try {
                         while ((S_bytesRead = input.read(S_contents)) != -1) {
@@ -98,22 +109,37 @@ public class SignupActivity extends ActionBarActivity {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        return e.getMessage();
+                        return "error";
                     }
                 return S_strFileContents;
                 }
             else {
-                return strFileContents;
+                return "error";
             }
 }
         protected void onPostExecute(String result){
             String str = result.substring(0,4);
             str = str.toLowerCase();
+            //server side error or some other error
             if (str.equals("error")){
-
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
+                loginAlert.setMessage("Error connecting to server");
+                loginAlert.setTitle("Error");
+                loginAlert.setPositiveButton("OK", null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
             }
-
-            if (result.equals("TRUE")){
+            //firstname or lastname fields are empty
+            else if (result.equals("missing_fields")){
+                AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
+                loginAlert.setMessage("Every section must be completed!");
+                loginAlert.setTitle("Registration Error");
+                loginAlert.setPositiveButton("OK", null);
+                loginAlert.setCancelable(true);
+                loginAlert.create().show();
+            }
+            //email is already taken
+            else if (result.equals("email_taken")){
                 AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
                 loginAlert.setMessage("Email is already registered!");
                 loginAlert.setTitle("Registration Error");
@@ -121,13 +147,17 @@ public class SignupActivity extends ActionBarActivity {
                 loginAlert.setCancelable(true);
                 loginAlert.create().show();
             }
+            //success!
             else {
                 AlertDialog.Builder loginAlert = new AlertDialog.Builder(SignupActivity.this);
-                loginAlert.setMessage("Error! Please try again");
-                loginAlert.setTitle("Error");
+                loginAlert.setMessage("You have successfully registered.");
+                loginAlert.setTitle("Success!");
                 loginAlert.setPositiveButton("OK", null);
                 loginAlert.setCancelable(true);
                 loginAlert.create().show();
+                //TODO: take user back to login page
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(i);
             }
         }
     }
